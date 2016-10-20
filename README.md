@@ -1,5 +1,4 @@
-LeetcodeScreenSaver
-Forked from WebViewScreenSaver
+LeetcodeScreenSaver Forked from WebViewScreenSaver
 ==================
 
  - Author: Alastair Tse <alastair@liquidx.net>
