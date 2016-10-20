@@ -44,7 +44,7 @@ static NSString * const kScreenSaverURLListKey = @"kScreenSaverURLList";  // NSA
     self.addressListURL = [userDefaults stringForKey:kScreenSaverURLsURLKey];
     self.shouldFetchAddressList = [userDefaults boolForKey:kScreenSaverFetchURLsKey];
 
-    //NSLog(@"Loaded Addresses: %@", self.addresses);
+    NSLog(@"Loaded Addresses: %@", self.addresses);
 
     if (!self.addresses) {
       self.addresses = [NSMutableArray array];

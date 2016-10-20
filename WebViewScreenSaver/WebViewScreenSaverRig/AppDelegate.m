@@ -32,8 +32,10 @@
 @implementation AppDelegate
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
-  NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
-  self.configController = [[WVSSConfigController alloc] initWithUserDefaults:userDefaults];
+    NSString *appDomain = [[NSBundle mainBundle] bundleIdentifier];
+    [[NSUserDefaults standardUserDefaults] removePersistentDomainForName:appDomain];
+    NSUserDefaults *userDefaults = [NSUserDefaults standardUserDefaults];
+    self.configController = [[WVSSConfigController alloc] initWithUserDefaults:userDefaults];
   self.configController.delegate = self;
 
   [self reloadWebView];

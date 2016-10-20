@@ -22,7 +22,7 @@
 #import "WVSSAddress.h"
 
 static NSTimeInterval const kDefaultDuration = 5 * 60.0;
-static NSString * const kScreenSaverDefaultURL = @"http://www.google.com/";
+static NSString * const kScreenSaverDefaultURL = @"https://leetcode.com/problemset/algorithms/";
 
 // Keys for the dictionaries in kScreenSaverURLList - string values should not be changed.
 NSString * const kWVSSAddressURLKey = @"kScreenSaverURL";

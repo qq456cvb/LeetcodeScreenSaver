@@ -21,6 +21,7 @@
 
 #import "WebViewScreenSaverView.h"
 #import "WVSSAddress.h"
+#import "Pods/AFNetworking/AFNetworking/AFNetworking.h"
 
 // ScreenSaverDefaults module name.
 static NSString * const kScreenSaverName = @"WebViewScreenSaver";
@@ -35,6 +36,7 @@ static NSTimeInterval const kOneMinute = 60.0;
 - (NSString *)urlForIndex:(NSInteger)index;
 // Returns the time interval in the preferences.
 - (NSTimeInterval)timeIntervalForIndex:(NSInteger)index;
+
 @end
 
 
@@ -43,6 +45,7 @@ static NSTimeInterval const kOneMinute = 60.0;
   WebView *_webView;
   NSInteger _currentIndex;
   BOOL _isPreview;
+    NSMutableArray *questions;
 }
 
 + (BOOL)performGammaFade {
@@ -126,10 +129,9 @@ static NSTimeInterval const kOneMinute = 60.0;
 
   NSColor *color = [NSColor colorWithCalibratedWhite:0.0 alpha:1.0];
   [[_webView layer] setBackgroundColor:color.CGColor];
-
-  if (!_isPreview && _currentIndex < [[self selectedURLs] count]) {
-    [self loadFromStart];
-  }
+    
+    questions = [[NSMutableArray alloc] init];
+    [self loadProblems];
 }
 
 - (void)stopAnimation {
@@ -142,6 +144,29 @@ static NSTimeInterval const kOneMinute = 60.0;
 }
 
 #pragma mark Loading URLs
+
+- (void) loadOneProblem {
+    int idx = arc4random() % [questions count];
+    NSString *question = [questions objectAtIndex:idx];
+    NSTimeInterval duration = [WVSSAddress defaultDuration];
+    NSString *url = [[NSString alloc] initWithFormat:@"https://leetcode.com/problems/%@", question];
+    _currentIndex = 0;
+    
+    if ([[self selectedURLs] count]) {
+        duration = [self timeIntervalForIndex:_currentIndex];
+//        url = [self urlForIndex:_currentIndex];
+    }
+    
+    
+    
+    [self loadURLThing:url];
+    [_timer invalidate];
+    _timer = [NSTimer scheduledTimerWithTimeInterval:duration
+                                              target:self
+                                            selector:@selector(loadOneProblem)
+                                            userInfo:nil
+                                             repeats:NO];
+}
 
 - (void)loadFromStart {
   NSTimeInterval duration = [WVSSAddress defaultDuration];
@@ -186,6 +211,51 @@ static NSTimeInterval const kOneMinute = 60.0;
                                           userInfo:nil
                                            repeats:NO];
   _currentIndex = nextIndex;
+}
+
+- (void) loadProblems {
+    AFHTTPSessionManager *manager = [AFHTTPSessionManager manager];
+    manager.requestSerializer = [AFHTTPRequestSerializer serializer];
+    manager.responseSerializer = [AFHTTPResponseSerializer serializer];
+    [manager GET:@"https://leetcode.com/api/problems/algorithms/" parameters:nil progress:nil success:^(NSURLSessionTask *task, id responseObject) {
+        NSString *responseString = [[NSString alloc] initWithData:responseObject encoding:NSUTF8StringEncoding];
+//        NSLog(@"Content: %@", responseString);
+        NSData *data = [responseString dataUsingEncoding:NSUTF8StringEncoding];
+        id json = [NSJSONSerialization JSONObjectWithData:data options:0 error:nil];
+        NSArray *messageArray = [json objectForKey:@"stat_status_pairs"];
+        
+        // Parse and loop through the JSON
+        for (NSDictionary * dataDict in messageArray) {
+            NSString *questionName = [((NSDictionary*)[dataDict objectForKey:@"stat"]) objectForKey:@"question__title_slug"];
+            BOOL paid_only = [[dataDict objectForKey:@"paid_only"] boolValue];
+            if (!paid_only) {
+                [questions addObject:questionName];
+            }
+        }
+        if (!_isPreview && _currentIndex < [[self selectedURLs] count]) {
+            [self loadOneProblem];
+        }
+    } failure:^(NSURLSessionTask *operation, NSError *error) {
+        NSLog(@"Error: %@", error);
+    }];
+}
+
+- (void) writeToTextFile:(NSString *)content{
+    //get the documents directory:
+    NSArray *paths = NSSearchPathForDirectoriesInDomains
+    (NSDocumentDirectory, NSUserDomainMask, YES);
+    NSString *documentsDirectory = [paths objectAtIndex:0];
+    
+    //make a file name to write the data to using the documents directory:
+    NSString *fileName = [NSString stringWithFormat:@"%@/a.txt",
+                          documentsDirectory];
+    NSError *error = nil;
+    //save content to the documents directory
+    [content writeToFile:fileName
+              atomically:NO
+                encoding:NSUTF8StringEncoding
+                   error:&error];
+    NSLog(@"Write returned error: %@", [error localizedDescription]);
 }
 
 - (void)loadURLThing:(NSString *)url {
