@@ -1,4 +1,4 @@
-WebViewScreenSaver
+Forked from WebViewScreenSaver
 ==================
 
  - Author: Alastair Tse <alastair@liquidx.net>
