@@ -1,32 +1,30 @@
-LeetcodeScreenSaver Forked from WebViewScreenSaver
+LeetcodeScreenSaver
 ==================
 
- - Author: Alastair Tse <alastair@liquidx.net>
- - URL: http://github.com/liquidx/webviewscreensaver
- - Twitter: @liquidx
+A macOS screen saver that quizzes you with **random LeetCode problems** while your Mac is idle — turning screen-idle time into algorithm practice. It's a fork of Alastair Tse's [WebViewScreenSaver](http://github.com/liquidx/webviewscreensaver), which renders web pages as a screen saver, customized to pull and cycle through the LeetCode problem set.
 
-Introduction
-------------
-A Mac OS X screen saver that displays a web page or a series of web pages.
+How it differs from WebViewScreenSaver
+---------------------------------------
 
-The web page runs as though you opened it in Safari, but it will not accept
-any keyboard or mouse input. The list of URLs it will can be set via
-the "Options..." panel in the Screen Saver settings.
+The base project displays a user-configured list of URLs. This fork adds LeetCode-specific behavior in `WebViewScreenSaverView.m`:
 
-Usage
------
+- On start it calls the LeetCode API (`https://leetcode.com/api/problems/algorithms/`), parses `stat_status_pairs`, and collects the title-slug of every **free** problem (paid-only problems are skipped).
+- It then repeatedly picks a random problem and loads `https://leetcode.com/problems/<slug>`, swapping to a new one on a timer (`loadOneProblem`).
+- The default address (`WVSSAddress.m`) is set to the LeetCode algorithms problem set.
 
-1. Download from https://github.com/liquidx/webviewscreensaver/releases
-2. Unpack the WebViewScreenSaver-x.x.zip file.
-3. Double-click (Open) the WebViewScreenSaver.saver file and choose to install
-   it.
-4. Open up System Preferences > Desktop and Screen Saver > Screen Saver
-5. Select "WebViewScreenSaver" (It'll be at the bottom of the Screen Savers list.)
-6. Press "Screen Saver Options" and enter the URLs you would like it to load and the
-   duration they should show for in minutes.
+Like the upstream, the page renders as it would in Safari/WebKit but ignores keyboard and mouse input. It uses AFNetworking (bundled via CocoaPods under `Pods/`) for the API request.
 
-Example URLs
-------------
+Building
+--------
+
+Open `WebViewScreenSaver/WebViewScreenSaver.xcodeproj` (the workspace, since it uses CocoaPods) in Xcode and build the `WebViewScreenSaver` target to produce a `.saver` bundle, then double-click it to install. This is a 2016-era Objective-C project using the deprecated `WebView`; expect it to need migration (and a logged-in LeetCode session in WebKit) to work on a current macOS.
+
+Original WebViewScreenSaver
+---------------------------
+
+This fork is built on WebViewScreenSaver by Alastair Tse (<alastair@liquidx.net>, [@liquidx](https://twitter.com/liquidx)), <http://github.com/liquidx/webviewscreensaver>. Its usage instructions and curated example URLs (which still work with the generic build) follow.
+
+A Mac OS X screen saver that displays a web page or a series of web pages. The list of URLs can be set via the "Options..." panel in the Screen Saver settings.
 
 Websites that look good as screensavers:
 
@@ -37,16 +35,5 @@ Websites that look good as screensavers:
  - http://alteredqualia.com/three/examples/webgl_cubes.html
  - http://akirodic.com/p/jellyfish/
  - http://matthew.wagerfield.com/flat-surface-shader/
- - https://developer.mozilla.org/en-US/demos/detail/consola-matrix/launch
  - http://spielzeugz.de/html5/liquid-particles.html
  - http://codepen.io/ykob/full/zGpjeK/
-
-Cool, but they don't work in Safari WebKit
-------------------------------------------
- - http://www.iamnop.com/particles/
- - http://mrdoob.com/lab/javascript/webgl/clouds/
- - http://mrdoob.com/lab/javascript/webgl/particles/magicdust.html
- - http://globe.chromeexperiments.com/
- - http://clouds.chromeexperiments.com/
- - http://oos.moxiecode.com/js_webgl/forest/index.html
- - http://oos.moxiecode.com/js_webgl/water_noise/
